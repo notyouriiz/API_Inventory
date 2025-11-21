@@ -1,16 +1,17 @@
-# 📦 Inventory API (Flask + PostgreSQL/NeonDB)
+# 📦 Inventory API Documentation (Flask + PostgreSQL/NeonDB)
 
-All development work should be done on the **development** branch. Only stable, tested code should be merged to the **main** branch.
+This document contains the **complete and updated API documentation** for the Inventory API project.
 
 ---
 
 ## 🚀 Tech Stack
 
-- Python + Flask
-- PostgreSQL (NeonDB)
-- SQLAlchemy ORM
-- JWT Authentication
-- Postman (API Testing)
+* Python + Flask
+* PostgreSQL (NeonDB)
+* SQLAlchemy ORM
+* Flask-Migrate
+* Flask-JWT-Extended (JWT Authentication)
+* Postman / Thunder Client (API Testing)
 
 ---
 
@@ -36,7 +37,7 @@ project/
 
 ---
 
-## 📌 Project Setup
+## ⚙️ Environment Setup
 
 ### 1. Clone Repository
 
@@ -51,15 +52,13 @@ cd API_Inventory
 pip install -r requirements.txt
 ```
 
-### 3. Configure Environment Variables
-
-Copy `.env.example` to `.env`:
+### 3. Create Environment File
 
 ```bash
 cp .env.example .env
 ```
 
-Update the values according to your NeonDB credentials and JWT secret key.
+Update values (DB_URI, JWT_SECRET_KEY, etc.).
 
 ---
 
@@ -69,7 +68,7 @@ Update the values according to your NeonDB credentials and JWT secret key.
 python app.py
 ```
 
-The server will run at:
+Server runs at:
 
 ```
 http://127.0.0.1:5000/
@@ -77,13 +76,12 @@ http://127.0.0.1:5000/
 
 ---
 
-## 🔐 Authentication Endpoints
+# 🔐 AUTHENTICATION API
 
-### Register
+## **POST /auth/register** — Register User
 
-**Endpoint:** `POST /auth/register`
+### Request Body
 
-**Request Body:**
 ```json
 {
   "name": "User",
@@ -92,7 +90,8 @@ http://127.0.0.1:5000/
 }
 ```
 
-**Response:**
+### Response
+
 ```json
 {
   "message": "User registered successfully",
@@ -102,11 +101,10 @@ http://127.0.0.1:5000/
 
 ---
 
-### Login
+## **POST /auth/login** — Login User
 
-**Endpoint:** `POST /auth/login`
+### Request Body
 
-**Request Body:**
 ```json
 {
   "email": "user@mail.com",
@@ -114,7 +112,8 @@ http://127.0.0.1:5000/
 }
 ```
 
-**Response:**
+### Response
+
 ```json
 {
   "token": "<JWT_TOKEN>",
@@ -124,16 +123,16 @@ http://127.0.0.1:5000/
 
 ---
 
-### Profile (Protected)
+## **GET /auth/profile** — Get User Profile (Protected)
 
-**Endpoint:** `GET /auth/profile`
+### Headers
 
-**Headers:**
 ```
 Authorization: Bearer <JWT_TOKEN>
 ```
 
-**Response:**
+### Response
+
 ```json
 {
   "id": 1,
@@ -145,50 +144,194 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
-## 📦 Implemented Features
+# 📦 CATEGORY API
 
-### 1. CRUD Product
-- Create, Read, Update, Delete products
-- Product association with categories
+## **POST /category** — Create Category
 
-### 2. CRUD Category
-- Create, Read, Update, Delete categories
-- Category management for products
+### Request
 
-### 3. Authentication
-- User registration
-- User login with JWT token
-- Protected endpoints with token validation
-- User profile access
+```json
+{
+  "name": "Electronics"
+}
+```
 
----
+### Response
 
-## 🛠️ Upcoming Features
-
-1. Soft Delete - Mark records as deleted without removing data
-2. Timestamp - Automatic `created_at` and `updated_at` fields
-3. Auto Generate ID - UUID or auto-incrementing ID generation
-4. Response Logging - Log all API responses for debugging and monitoring
+```json
+{
+  "message": "Category created ",
+}
+```
 
 ---
 
-## 🔒 Security Best Practices
+## **GET /category** — Get All Categories
 
-- Always validate user input before processing
-- Use HTTPS in production environment
-- Implement rate limiting to prevent brute force attacks
-- Regularly rotate JWT secret keys
-- Hash passwords using strong algorithms (bcrypt recommended)
-- Keep dependencies updated
+### Response
 
----
-
-## 📚 API Documentation
-
-For detailed API documentation, use Postman or any API testing tool to interact with the endpoints. Import the collection file (if available) or manually create requests for each endpoint.
+```json
+[
+  {
+    "id": 1,
+    "name": "Electronics"
+  }
+]
+```
 
 ---
 
-## 📧 Support
+## **GET /category/<id>** — Get Category by ID
 
-For questions or issues, please contact the development team or open an issue in the repository.
+### Response
+
+```json
+{
+  "id": 1,
+  "name": "Electronics"
+}
+```
+
+---
+
+## **PUT /category/<id>** — Update Category
+
+### Request
+
+```json
+{
+  "name": "Updated Name"
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Category updated"
+}
+```
+
+---
+
+## **DELETE /category/<id>** — Delete Category
+
+### Response
+
+```json
+{
+  "message": "Category deleted"
+}
+```
+
+---
+
+# 🛒 PRODUCT API
+
+## **POST /product** — Create Product
+
+### Request
+
+```json
+{
+  "name": "Laptop",
+  "stock": 5,
+  "category_id": 1
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Product created",
+  "product": {
+    "id": 1,
+    "name": "Laptop",
+    "stock": 5,
+    "category_id": 1
+  }
+}
+```
+
+---
+
+## **GET /product** — Get All Products
+
+```json
+{
+  "products": []
+}
+```
+
+---
+
+## **GET /product/<id>** — Get Product by ID
+
+```json
+{
+  "id": 1,
+  "name": "Laptop",
+  "stock": 5,
+  "category_id": 1
+}
+```
+
+---
+
+## **PUT /product/<id>** — Update Product
+
+### Request
+
+```json
+{
+  "name": "Gaming Laptop",
+  "stock": 10
+}
+```
+
+### Response
+
+```json
+{
+  "message": "Product updated"
+}
+```
+
+---
+
+## **DELETE /product/<id>** — Delete Product
+
+### Response
+
+```json
+{
+  "message": "Product deleted"
+}
+```
+
+---
+
+# 🛠️ UPCOMING FEATURES
+
+* Soft Delete
+* Timestamp auto update
+* UUID or Auto-ID Enhancements
+* Response Logging
+
+---
+
+# 🔒 Security Best Practices
+
+* Validate user input
+* Use HTTPS in production
+* Enable rate limiting
+* Rotate JWT keys
+* Hash passwords using bcrypt
+* Keep dependencies updated
+
+---
+
+# 📧 Support
+
+For questions or issues, open an issue in the repository or contact the development team.
