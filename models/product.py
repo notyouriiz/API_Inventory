@@ -12,3 +12,4 @@ class Product(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.now)
 
     category = db.relationship("Category", backref="products")
+    
