@@ -104,7 +104,7 @@ def get_products():
         stock_status = request.args.get("stock_status", "").lower()  # "in_stock", "out_of_stock", "low_stock"
         low_stock_threshold = request.args.get("low_stock_threshold", 10, type=int)
         
-        query = Product.query
+        query = Product.query.filter(Product.deleted_at.is_(None))
         
         # Apply filters
         if category_id:
@@ -159,7 +159,12 @@ def get_products():
 @jwt_required()
 def get_product(id):
     try:
-        product = Product.query.get_or_404(id)
+        product = Product.query.filter(
+            Product.id == id, 
+            Product.deleted_at.is_(None)
+            ).first()
+        if not product:
+            return jsonify({"error": "Product not found"}), 404
         
         return jsonify({
             "id": product.id,
@@ -248,8 +253,31 @@ def update_product(id):
             return jsonify({"error": "Product not found"}), 404
         return jsonify({"error": f"Failed to update product: {str(e)}"}), 500
 
+# HARD DELETE - Permanently remove from database
+@product_bp.route("/<int:id>/force", methods=["DELETE"])
+@jwt_required()
+def force_delete_product(id):
+    try:
+        product = Product.query.get_or_404(id)
 
-# DELETE - Only for authenticated users
+        # Only allow hard delete if it is already soft deleted
+        if product.deleted_at is None:
+            return jsonify({
+                "error": "Product must be soft deleted before permanent deletion"
+            }), 400
+
+        db.session.delete(product)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Product permanently deleted"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Failed to permanently delete product: {str(e)}"}), 500
+
+# SOFT DELETE - Only for authenticated users
 @product_bp.route("/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_product(id):
@@ -257,7 +285,12 @@ def delete_product(id):
         current_user_id = get_jwt_identity()
         product = Product.query.get_or_404(id)
         
-        db.session.delete(product)
+        if product.deleted_at is not None:
+            return jsonify(
+                {"message": "Product is already soft deleted"}
+            ),200
+        product.deleted_at = datetime.utcnow()
+        # db.session.delete(product)
         db.session.commit()
         
         return jsonify({
@@ -269,6 +302,39 @@ def delete_product(id):
         if "not found" in str(e).lower():
             return jsonify({"error": "Product not found"}), 404
         return jsonify({"error": f"Failed to delete product: {str(e)}"}), 500
+
+# RESTORE - Only for authenticated users
+@product_bp.route("/<int:id>/restore", methods=["PATCH"])
+@jwt_required()
+def restore_product(id):
+    try:
+        current_user_id = get_jwt_identity()
+
+        product = Product.query.filter_by(id=id).first()
+
+        if not product:
+            return jsonify({"error": "Product not found"}), 404
+
+        if product.deleted_at is None:
+            return jsonify({"message": "Product is already active"}), 200
+
+        product.deleted_at = None
+        product.updated_at = datetime.utcnow()
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "Product restored successfully",
+            "product": {
+                "id": product.id,
+                "name": product.name,
+                "updated_at": product.updated_at.isoformat()
+            }
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Failed to restore product: {str(e)}"}), 500
 
 # BULK UPDATE STOCK - Additional endpoints for updating stock of multiple products at once 
 @product_bp.route("/bulk-update-stock", methods=["PUT"])

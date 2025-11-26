@@ -561,6 +561,13 @@ GET /api/categories/?page=1&per_page=10&search=electronics
 }
 ```
 
+**Failed Response - category not Found (404)**
+```json
+{
+  "error": "Category not found"
+}
+```
+
 #### 3. Get Category by ID
 ```
 GET /api/categories/1
@@ -628,9 +635,9 @@ PUT /api/categories/1
 }
 ```
 
-#### 5. Delete Category
+#### 5. Soft Delete Category
 ```
-DELETE /api/categories/1
+DELETE /api/categories/<categories_id>
 ```
 
 **Success Response (200)**
@@ -643,7 +650,7 @@ DELETE /api/categories/1
 **Failed Response - Category Used Product (409)**
 ```json
 {
-  "error": "Cannot delete category. 5 product(s) are using this category"
+  "error": "Cannot delete category. {product_count} product(s) are using this category"
 }
 ```
 
@@ -651,6 +658,75 @@ DELETE /api/categories/1
 ```json
 {
   "error": "Category not found"
+}
+```
+
+#### 5. Hard Delete Category
+```
+DELETE /api/categories/<categories_id>/force
+```
+**Success Response (200)**
+```json
+{
+  "message": "Category permanently deleted"
+}
+```
+
+**Failed Response - Category Used Product (500)**
+```json
+{
+  "error": "Failed to permanently delete category:"
+}
+```
+
+**Failed Response - Not Found (404)**
+```json
+{
+  "error": "Category not found"
+}
+```
+
+**Failed Response - Category is Not Soft Deleted Yet (400)**
+```json
+{
+  "error": "Category must be soft deleted before permanent deletion"
+}
+```
+
+#### 6. Restore Delete Categories
+```
+DELETE /api/product/<categories_id>/restore
+```
+
+**Success Response (200)**
+```json
+{
+            "message": "Category restored successfully",
+            "category":
+                "id": {category.id},
+                "name": {category.name},
+                "updated_at": {timestamp}
+}
+```
+
+**Success Response - Category is Restored (200)**
+```json
+{
+    "message": "Category is already active"
+}
+```
+
+**Failed Response - Category Not Found (404)**
+```json
+{
+    "error": "Category not found"
+}
+```
+
+**Failed Response (500)**
+```json
+{
+    "error": "Failed to restore category"
 }
 ```
 
@@ -788,6 +864,13 @@ GET /api/products/?page=1&per_page=10&category_id=1&search=laptop&stock_status=l
 }
 ```
 
+**Failed Response - Product not Found (404)**
+```json
+{
+  "error": "Product not found"
+}
+```
+
 #### 3. Get Product by ID
 ```
 GET /api/products/1
@@ -894,34 +977,134 @@ PUT /api/products/1
   "error": "Product not found"
 }
 ```
+---
 
-#### 5. Delete Product
+#### 5. Soft Delete Product
+
 ```
-DELETE /api/products/1
+DELETE /api/products/<product_id>
 ```
 
 **Success Response (200)**
+
 ```json
 {
   "message": "Product deleted successfully"
 }
 ```
 
+**Success Response - Already Soft Deleted (200)**
+
+```json
+{
+  "message": "Product is already soft deleted"
+}
+```
+
 **Failed Response - Not Found (404)**
+
 ```json
 {
   "error": "Product not found"
 }
 ```
 
-**Failed Response - Server Error (500)**
+**Failed Response (500)**
+
 ```json
 {
-  "error": "Failed to delete product: Database error"
+  "error": "Failed to delete product"
 }
 ```
 
-#### 6. Bulk Update Stock
+---
+
+#### 6. Hard Delete Product
+
+```
+DELETE /api/products/<product_id>/force
+```
+
+**Success Response (200)**
+
+```json
+{
+  "message": "Product permanently deleted"
+}
+```
+
+**Failed Response - Not Soft Deleted Yet (400)**
+
+```json
+{
+  "error": "Product must be soft deleted before permanent deletion"
+}
+```
+
+**Failed Response - Not Found (404)**
+
+```json
+{
+  "error": "Product not found"
+}
+```
+
+**Failed Response (500)**
+
+```json
+{
+  "error": "Failed to permanently delete product"
+}
+```
+
+---
+
+#### 7. Restore Product
+
+```
+PATCH /api/products/<product_id>/restore
+```
+
+**Success Response (200)**
+
+```json
+{
+  "message": "Product restored successfully",
+  "product": {
+      "id": {product.id},
+      "name": {product.name},
+      "updated_at": {timestamp}
+  }
+}
+```
+
+**Success Response - Already Active (200)**
+
+```json
+{
+  "message": "Product is already active"
+}
+```
+
+**Failed Response - Not Found (404)**
+
+```json
+{
+  "error": "Product not found"
+}
+```
+
+**Failed Response (500)**
+
+```json
+{
+  "error": "Failed to restore product"
+}
+```
+---
+
+
+#### 7. Bulk Update Stock
 ```
 PUT /api/products/bulk-update-stock
 ```

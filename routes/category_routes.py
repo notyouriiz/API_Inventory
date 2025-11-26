@@ -67,7 +67,7 @@ def get_categories():
         # Search/filter by name
         search = request.args.get("search", "").strip()
         
-        query = Category.query
+        query = Category.query.filter(Category.deleted_at.is_(None))
         
         if search:
             query = query.filter(Category.name.ilike(f"%{search}%"))
@@ -106,7 +106,12 @@ def get_categories():
 @jwt_required()
 def get_category(id):
     try:
-        category = Category.query.get_or_404(id)
+        category = Category.query.filter(
+            Category.id == id, 
+            Category.deleted_at.is_(None)
+            ).first()
+        if not category:
+            return jsonify({"error": "Category not found"}), 404
         
         return jsonify({
             "id": category.id,
@@ -116,7 +121,7 @@ def get_category(id):
         }), 200
         
     except Exception as e:
-        return jsonify({"error": f"Category not found"}), 404
+        return jsonify({"error": str(e)}), 500
 
 # UPDATE - Only for authenticated users
 @category_bp.route("/<int:id>", methods=["PUT"])
@@ -124,7 +129,12 @@ def get_category(id):
 def update_category(id):
     try:
         current_user_id = get_jwt_identity()
-        category = Category.query.get_or_404(id)
+        category = Category.query.filter(
+            Category.id == id,
+            Category.deleted_at.is_(None)
+        ).first()
+        if not category:
+            return jsonify({"error": "Category not found"}), 404
         
         data = request.get_json()
         
@@ -163,8 +173,32 @@ def update_category(id):
             return jsonify({"error": "Category not found"}), 404
         return jsonify({"error": f"Failed to update category: {str(e)}"}), 500
 
+# HARD DELETE - Permanently remove from database
+@category_bp.route("/<int:id>/force", methods=["DELETE"])
+@jwt_required()
+def force_delete_category(id):
+    try:
+        category = Category.query.get_or_404(id)
 
-# DELETE - Only for authenticated users
+        # Only allow hard delete if it is already soft deleted
+        if category.deleted_at is None:
+            return jsonify({
+                "error": "Category must be soft deleted before permanent deletion"
+            }), 400
+
+        db.session.delete(category)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Category permanently deleted"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Failed to permanently delete category: {str(e)}"}), 500
+
+
+# SOFT DELETE - Only for authenticated users
 @category_bp.route("/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete_category(id):
@@ -181,7 +215,8 @@ def delete_category(id):
                 "error": f"Cannot delete category. {product_count} product(s) are using this category"
             }), 409
         
-        db.session.delete(category)
+        # db.session.delete(category)
+        category.deleted_at = datetime.utcnow() #soft delete timestamp feature
         db.session.commit()
         
         return jsonify({
@@ -193,3 +228,36 @@ def delete_category(id):
         if "not found" in str(e).lower():
             return jsonify({"error": "Category not found"}), 404
         return jsonify({"error": f"Failed to delete category: {str(e)}"}), 500
+
+# RESTORE - Only for authenticated users
+@category_bp.route("/<int:id>/restore", methods=["PATCH"])
+@jwt_required()
+def restore_category(id):
+    try:
+        current_user_id = get_jwt_identity()
+
+        category = Category.query.filter_by(id=id).first()
+
+        if not category:
+            return jsonify({"error": "Category not found"}), 404
+
+        if category.deleted_at is None:
+            return jsonify({"message": "Category is already active"}), 200
+
+        category.deleted_at = None
+        category.updated_at = datetime.utcnow()
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "Category restored successfully",
+            "category": {
+                "id": category.id,
+                "name": category.name,
+                "updated_at": category.updated_at.isoformat()
+            }
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Failed to restore category: {str(e)}"}), 500
