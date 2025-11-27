@@ -288,7 +288,7 @@ def delete_product(id):
             return jsonify(
                 {"message": "Product is already soft deleted"}
             ),200
-        product.deleted_at = datetime.utcnow()
+        product.deleted_at = datetime.now()
         # db.session.delete(product)
         db.session.commit()
         

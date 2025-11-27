@@ -215,7 +215,7 @@ def delete_category(id):
             }), 409
         
         # db.session.delete(category)
-        category.deleted_at = datetime.utcnow() #soft delete timestamp feature
+        category.deleted_at = datetime.now() #soft delete timestamp feature
         db.session.commit()
         
         return jsonify({
