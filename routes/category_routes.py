@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify
 from models.category import Category
 from extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from datetime import datetime
 
 category_bp = Blueprint("category", __name__)
 
@@ -155,7 +154,6 @@ def update_category(id):
             return jsonify({"error": "Category name already in use"}), 409
         
         category.name = name
-        category.updated_at = datetime.now()
         db.session.commit()
         
         return jsonify({

@@ -3,7 +3,6 @@ from models.product import Product
 from models.category import Category
 from extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from datetime import datetime
 
 product_bp = Blueprint("product", __name__)
 
@@ -230,7 +229,6 @@ def update_product(id):
                 return jsonify({"error": "Stock must be a non-negative integer"}), 400
             product.stock = stock
         
-        product.updated_at = datetime.now()
         db.session.commit()
         
         return jsonify({
@@ -373,7 +371,6 @@ def bulk_update_stock():
                 continue
             
             product.stock = stock
-            product.updated_at = datetime.now()
             updated_count += 1
         
         db.session.commit()

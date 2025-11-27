@@ -55,6 +55,15 @@ def create_app():
                 "error": str(e)
             }), 503
 
+    # Automatic session cleanup
+    @app.after_request
+    def cleanup_session(response):
+        try:
+            db.session.remove()
+        except Exception:
+            pass
+        return response
+
     # Global error handler
     @app.errorhandler(404)
     def not_found(error):

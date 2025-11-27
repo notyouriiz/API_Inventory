@@ -1,7 +1,7 @@
 from extensions import db, bcrypt
-from datetime import datetime
+from models.base_model import TimestampMixin
 
-class User(db.Model):
+class User(TimestampMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.BigInteger, primary_key=True)

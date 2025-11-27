@@ -1,7 +1,7 @@
 from extensions import db
-from datetime import datetime
+from models.base_model import TimestampMixin
 
-class Category(db.Model):
+class Category(TimestampMixin, db.Model):
     __tablename__ = "categories"
 
     id = db.Column(db.BigInteger, primary_key=True)

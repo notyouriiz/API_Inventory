@@ -1,7 +1,7 @@
 from extensions import db
-from datetime import datetime
+from models.base_model import TimestampMixin
 
-class Product(db.Model):
+class Product(TimestampMixin, db.Model):
     __tablename__ = "products"
 
     id = db.Column(db.BigInteger, primary_key=True)
@@ -12,5 +12,4 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now)
 
-    category = db.relationship("Category", backref="products")
-    
+    category = db.relationship("Category", backref="products")    

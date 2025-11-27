@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify
 from models.user import User
 from extensions import db
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity
-from datetime import timedelta
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -79,14 +78,8 @@ def login():
             return jsonify({"error": "Invalid email or password"}), 401
         
         # Buat access token dan refresh token
-        access_token = create_access_token(
-            identity=str(user.id),
-            expires_delta=timedelta(hours=1)
-        )
-        refresh_token = create_refresh_token(
-            identity=str(user.id),
-            expires_delta=timedelta(days=30)
-        )
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return jsonify({
             "message": "Login successful",
@@ -110,10 +103,7 @@ def refresh():
         current_user_id = int(get_jwt_identity())
         
         # Buat access token baru
-        access_token = create_access_token(
-            identity=str(current_user_id),
-            expires_delta=timedelta(hours=1)
-        )
+        access_token = create_access_token(identity=str(current_user_id))
         
         return jsonify({
             "access_token": access_token
@@ -180,9 +170,7 @@ def update_current_user():
             if len(password) < 6:
                 return jsonify({"error": "Password must be at least 6 characters"}), 400
             user.set_password(password)
-        
-        from datetime import datetime
-        user.updated_at = datetime.now()
+
         db.session.commit()
         
         return jsonify({
