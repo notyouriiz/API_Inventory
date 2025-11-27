@@ -95,6 +95,7 @@ http://127.0.0.1:5000/
 - name (String 100, Unique)
 - created_at (DateTime)
 - updated_at (DateTime)
+- deleted_at (Datetime)
 ```
 
 ### Products
@@ -105,6 +106,7 @@ http://127.0.0.1:5000/
 - stock (Integer)
 - created_at (DateTime)
 - updated_at (DateTime)
+- deleted_at (Datetime)
 ```
 
 ---
@@ -693,9 +695,9 @@ DELETE /api/categories/<categories_id>/force
 }
 ```
 
-#### 6. Restore Delete Categories
+#### 6. Restore Categories
 ```
-DELETE /api/product/<categories_id>/restore
+PATCH /api/product/<categories_id>/restore
 ```
 
 **Success Response (200)**
