@@ -3,6 +3,7 @@ from models.product import Product
 from models.category import Category
 from extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from datetime import datetime
 
 product_bp = Blueprint("product", __name__)
 
@@ -317,8 +318,6 @@ def restore_product(id):
             return jsonify({"message": "Product is already active"}), 200
 
         product.deleted_at = None
-        product.updated_at = datetime.utcnow()
-
         db.session.commit()
 
         return jsonify({

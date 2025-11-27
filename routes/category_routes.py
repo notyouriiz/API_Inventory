@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from models.category import Category
 from extensions import db
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from datetime import datetime
 
 category_bp = Blueprint("category", __name__)
 
@@ -243,8 +244,6 @@ def restore_category(id):
             return jsonify({"message": "Category is already active"}), 200
 
         category.deleted_at = None
-        category.updated_at = datetime.utcnow()
-
         db.session.commit()
 
         return jsonify({
