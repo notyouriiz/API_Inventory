@@ -1,1 +1,7 @@
 Flask
+Flask-SQLAlchemy
+Flask-Bcrypt
+Flask-Migrate
+Flask-JWT-Extended
+python-dotenv
+psycopg2-binary
