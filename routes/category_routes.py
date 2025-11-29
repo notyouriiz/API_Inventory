@@ -258,3 +258,33 @@ def restore_category(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Failed to restore category: {str(e)}"}), 500
+
+# RESTORE - Only for authenticated users (GET)
+@category_bp.route("/deleted", methods=["GET"])
+@jwt_required()
+def get_deleted_categories():
+    """Get all soft-deleted categories"""
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+    
+    query = Category.query.filter(Category.deleted_at.isnot(None))
+    query = query.order_by(Category.deleted_at.desc())
+    
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    
+    categories = [{
+        "id": c.id,
+        "name": c.name,
+        "created_at": c.created_at.isoformat(),
+        "deleted_at": c.deleted_at.isoformat()
+    } for c in pagination.items]
+    
+    return jsonify({
+        "categories": categories,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+            "total": pagination.total,
+            "pages": pagination.pages
+        }
+    }), 200

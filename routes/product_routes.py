@@ -383,3 +383,68 @@ def bulk_update_stock():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": f"Bulk update failed: {str(e)}"}), 500
+
+# RESTORE - Only for authenticated users (GET)
+@product_bp.route("/deleted", methods=["GET"])
+@jwt_required()
+def get_deleted_products():
+    """Get all soft-deleted products"""
+    try:
+        # Pagination
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+        
+        # Limit per_page
+        if per_page > 100:
+            per_page = 100
+        
+        # Filter by category
+        category_id = request.args.get("category_id", type=int)
+        
+        # Search by name
+        search = request.args.get("search", "").strip()
+        
+        # Query only deleted products
+        query = Product.query.filter(Product.deleted_at.isnot(None))
+        
+        # Apply filters
+        if category_id:
+            query = query.filter_by(category_id=category_id)
+        
+        if search:
+            query = query.filter(Product.name.ilike(f"%{search}%"))
+        
+        # Order by deleted_at (most recent first)
+        query = query.order_by(Product.deleted_at.desc())
+        
+        # Pagination
+        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        products = [{
+            "id": p.id,
+            "name": p.name,
+            "stock": p.stock,
+            "category": {
+                "id": p.category.id,
+                "name": p.category.name
+            },
+            "created_at": p.created_at.isoformat(),
+            "updated_at": p.updated_at.isoformat(),
+            "deleted_at": p.deleted_at.isoformat()
+        } for p in pagination.items]
+        
+        return jsonify({
+            "products": products,
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": pagination.total,
+                "pages": pagination.pages,
+                "has_next": pagination.has_next,
+                "has_prev": pagination.has_prev
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"Failed to get deleted products: {str(e)}"}), 500
+    
