@@ -171,6 +171,7 @@ def update_current_user():
                 return jsonify({"error": "Password must be at least 6 characters"}), 400
             user.set_password(password)
 
+        user.touch()
         db.session.commit()
         
         return jsonify({

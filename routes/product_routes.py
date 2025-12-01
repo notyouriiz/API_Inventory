@@ -230,6 +230,7 @@ def update_product(id):
                 return jsonify({"error": "Stock must be a non-negative integer"}), 400
             product.stock = stock
         
+        product.touch()
         db.session.commit()
         
         return jsonify({
@@ -370,6 +371,7 @@ def bulk_update_stock():
                 continue
             
             product.stock = stock
+            product.touch()
             updated_count += 1
         
         db.session.commit()

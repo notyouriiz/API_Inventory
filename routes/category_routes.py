@@ -155,6 +155,7 @@ def update_category(id):
             return jsonify({"error": "Category name already in use"}), 409
         
         category.name = name
+        category.touch()
         db.session.commit()
         
         return jsonify({
