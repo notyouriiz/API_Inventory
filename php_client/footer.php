@@ -2,10 +2,6 @@
 
 $apiRoot = null;
 $apiHealth = null;
-
-// duration
-// no calling api every page
-// it won't update immediately before the 10 mins mark
 $cacheTime = 600;
 
 // check duration
@@ -53,41 +49,48 @@ $databaseStatus = $apiHealth['database'] ?? "-";
 <!-- UI -->
 </main>
 <footer style="
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #f8f9fa;
-    border-top: 1px solid #ccc;
-    padding: 12px 20px;
-    font-size: 0.9em;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    padding: 20px 30px;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.95em;
     color: #333;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
-    z-index: 1000;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.05);
+    margin-top: 30px;
 ">
-    <div>
-        <strong>API Info:</strong> <?= htmlspecialchars($apiMessage) ?> (v<?= htmlspecialchars($apiVersion) ?>)
-    </div>
-    <div>
-        endpoints:
-        <?php if (!empty($endpoints)): ?>
-            <?php foreach ($endpoints as $name => $url): ?>
-                <span><?= htmlspecialchars($name) ?>: <code><?= htmlspecialchars($url) ?></code></span>
-            <?php endforeach; ?>
-        <?php else: ?>
-            None
-        <?php endif; ?>
-    </div>
-    <div style="margin-top: 5px;">
-        <strong>status:</strong>
-        <span style="color: <?= $statusColor ?>; font-weight: bold;">
-            <?= htmlspecialchars($statusText) ?>
-        </span>
-        (database: <?= htmlspecialchars($databaseStatus) ?>)
+    <div style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:10px;">
+
+        <!-- API message & version -->
+        <div style="font-weight:bold;">
+            API Info: <?= htmlspecialchars($apiMessage) ?> 
+            <span style="color:#0073e6;">(v<?= htmlspecialchars($apiVersion) ?>)</span>
+        </div>
+
+        <!-- API endpoints -->
+        <div>
+            <strong>Endpoints:</strong>
+            <?php if (!empty($endpoints)): ?>
+                <ul style="list-style:none; padding-left:0; margin:5px 0;">
+                    <?php foreach ($endpoints as $name => $url): ?>
+                        <li style="background:#f7f7f7; padding:6px 10px; border-radius:6px; margin-bottom:4px;">
+                            <strong><?= htmlspecialchars($name) ?>:</strong> 
+                            <code style="color:#555; font-size:0.9em;"><?= htmlspecialchars($url) ?></code>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <span style="color:#888;">None</span>
+            <?php endif; ?>
+        </div>
+
+        <!-- API health status -->
+        <div>
+            <strong>Status:</strong>
+            <span style="color: <?= $statusColor ?>; font-weight:bold;"><?= htmlspecialchars($statusText) ?></span>
+            <span>(Database: <?= htmlspecialchars($databaseStatus) ?>)</span>
+        </div>
+
     </div>
 </footer>
-
-
-
 </body>
 </html>
