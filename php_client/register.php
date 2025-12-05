@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
-    <form method="POST" style="display:flex;flex-direction:column;gap:10px">
+    <form method="POST" style="display:flex;flex-direction:column;gap:10px" id="registerForm">
 
         <label>Name
             <input type="text" name="name" placeholder="Enter your name"
@@ -76,21 +76,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         </label>
 
-        <script>
-        document.getElementById("togglePassword").addEventListener("click", function () {
-            const field = document.getElementById("passwordField");
-            field.type = field.type === "password" ? "text" : "password";
-        });
-        </script>
+        <label>Confirm Password
+        <div style="flex:1;position:relative;">
+            <input type="password"
+                    id="confirmPasswordField"
+                    placeholder="Confirm password"
+                    style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;">
+                <span id="toggleConfirmPassword"
+                    style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                        cursor:pointer;color:#555;font-size:14px;">
+                    👁
+                </span>
+        </div>
+        </label>
+
+        <div id="matchStatus" style="font-size:13px;margin-top:-5px;min-height:18px;"></div>
 
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
             <a href="login.php" style="font-size:13px;color:#0073e6;text-decoration:none">Back to Login</a>
             <button type="submit"
-                    style="background:#0073e6;color:#fff;border:0;padding:10px 16px;border-radius:6px;cursor:pointer;">
-                Register
+                    id="submitBtn"
+                    disabled
+                    style="background:#0073e6;color:#fff;border:0;padding:10px 16px;border-radius:6px;cursor:pointer;opacity:0.5;">
+                Create Account
             </button>
         </div>
     </form>
 </div>
+
+<script>
+// Toggle password visibility
+document.getElementById("togglePassword").addEventListener("click", function () {
+    const field = document.getElementById("passwordField");
+    field.type = field.type === "password" ? "text" : "password";
+});
+
+document.getElementById("toggleConfirmPassword").addEventListener("click", function () {
+    const field = document.getElementById("confirmPasswordField");
+    field.type = field.type === "password" ? "text" : "password";
+});
+
+// Real-time password matching validation
+function checkPasswordMatch() {
+    const password = document.getElementById("passwordField").value;
+    const confirmPassword = document.getElementById("confirmPasswordField").value;
+    const matchStatus = document.getElementById("matchStatus");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // If confirm password field is empty, clear status
+    if (confirmPassword === "") {
+        matchStatus.textContent = "";
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+        submitBtn.style.cursor = "not-allowed";
+        return;
+    }
+
+    // Check if passwords match
+    if (password === confirmPassword && password !== "") {
+        matchStatus.textContent = "Passwords match";
+        matchStatus.style.color = "#28a745";
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+        submitBtn.style.cursor = "pointer";
+    } else {
+        matchStatus.textContent = "Passwords do not match";
+        matchStatus.style.color = "#dc3545";
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = "0.5";
+        submitBtn.style.cursor = "not-allowed";
+    }
+}
+
+// Add event listeners for real-time validation
+document.getElementById("passwordField").addEventListener("input", checkPasswordMatch);
+document.getElementById("confirmPasswordField").addEventListener("input", checkPasswordMatch);
+
+// Prevent form submission if passwords don't match
+document.getElementById("registerForm").addEventListener("submit", function(e) {
+    const password = document.getElementById("passwordField").value;
+    const confirmPassword = document.getElementById("confirmPasswordField").value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert("Passwords do not match!");
+    }
+});
+</script>
 
 <?php require_once "footer.php"; ?>
