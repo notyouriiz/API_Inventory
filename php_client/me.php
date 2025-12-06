@@ -37,22 +37,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
 
 
 <!-- UI -->
-<div style="max-width:600px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;
-            box-shadow:0 2px 6px rgba(0,0,0,0.06);font-family:Segoe UI,Roboto,Arial,sans-serif">
+<div style="
+    max-width:600px;
+    margin:20px auto;
+    padding:20px;
+    background: var(--surface-bg);
+    border-radius:10px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+    font-family: Segoe UI,Roboto,Arial,sans-serif;
+">
 
     <h2>My Profile</h2>
 
     <?php if ($flash): ?>
     <div style="padding:10px;margin-bottom:12px;border-radius:6px;
-                border:1px solid <?= strpos($flash, 'failed') !== false ? '#f5b7b7' : '#b7f0b7' ?>;
-                background: <?= strpos($flash, 'failed') !== false ? '#ffe6e6' : '#e8ffe8' ?>;">
+            border:1px solid <?= strpos($flash, 'failed') !== false ? 'var(--flash-error-border)' : 'var(--flash-success-border)' ?>;
+            background: <?= strpos($flash, 'failed') !== false ? 'var(--flash-error-bg)' : 'var(--flash-success-bg)' ?>;
+            color: var(--flash-text);
+        ">
         <?= htmlspecialchars($flash) ?>
     </div>
     <?php endif; ?>
 
 
     <?php if ($profile): ?>
-        <div style="margin-bottom:20px;font-size:14px;color:#444;">
+        <div style="margin-bottom:20px;font-size:14px;color:var(--text-muted);">
             <p><strong>ID:</strong> <?= htmlspecialchars($profile['id']) ?></p>
             <p><strong>Created:</strong> <?= htmlspecialchars($profile['created_at']) ?></p>
             <p><strong>Updated:</strong> <?= htmlspecialchars($profile['updated_at']) ?></p>
@@ -65,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
         <!-- Name -->
         <div style="display:flex;align-items:center;gap:20px;">
             <label style="width:90px;">Name</label>
-            <input type="text" name="name"
+            <input type="text" name="name", id="nameField"
                 value="<?= htmlspecialchars($profile['name']) ?>"
                 style="flex:1;padding:10px;border:1px solid #ccc;border-radius:6px;">
         </div>
@@ -113,5 +122,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update'])) {
         
     <?php endif; ?>
 </div>
+
+<script>
+document.querySelector("form").addEventListener("submit", function () {
+    const nameField = document.getElementById("nameField");
+
+    let v = nameField.value.trim().toLowerCase();
+
+    // Capitalize first letter + letters after spaces
+    v = v.charAt(0).toUpperCase() + v.slice(1);
+    v = v.replace(/\s+\w/g, s => s.toUpperCase());
+
+    nameField.value = v;
+});
+</script>
+
+
 
 <?php require_once "footer.php"; ?>

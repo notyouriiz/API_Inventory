@@ -47,12 +47,12 @@ foreach ($categories as $cat) {
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div style="display: flex; max-width: 1200px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); font-family: 'Segoe UI', Roboto, Arial, sans-serif; gap: 20px;">
+<div class="card">
 
         <!-- Left column: Filters & Categories -->
         <div style="flex:1; padding-right: 20px;">
                 <!-- Filter Form -->
-                <form method="GET" style="margin-bottom: 20px; background:#f9f9f9; padding:15px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <form method="GET" style="margin-bottom: 20px; background:var(--surface-bg); padding:15px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                         <h3 style="margin-bottom:15px;">Filter Products</h3>
                         <input type="text" name="search" placeholder="Search product..." value="<?= htmlspecialchars($search) ?>"
                                 style="width:100%; padding:10px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc; box-sizing:border-box">
@@ -101,7 +101,7 @@ foreach ($categories as $cat) {
         <!-- Right column: Charts + Products Table -->
         <div style="flex:2; display:flex; flex-direction:column; gap:20px;">
                 <!-- Products Table -->
-                <table style="width:100%; border-collapse: collapse; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                <table style="width:100%; border-collapse: collapse; background:var(--surface-bg); border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                         <thead style="background:#0073e6; color:white; text-align:left;">
                                 <tr>
                                         <th style="padding:12px;">Name</th>
@@ -143,13 +143,13 @@ foreach ($categories as $cat) {
                 <!-- Charts -->
                 <div style="display:flex; gap:20px; flex-wrap:wrap;">
                         <!-- Bar chart -->
-                        <div style="flex:1; min-width:250px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                        <div style="flex:1; min-width:250px; background:var(--surface-bg); padding:15px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                                 <h4 style="text-align:center; margin-bottom:10px;">Categories Distribution</h4>
                                 <canvas id="productsChart" height="200"></canvas>
                         </div>
 
                         <!-- Pie chart -->
-                        <div style="flex:1; min-width:250px; background:#fff; padding:15px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                        <div style="flex:1; min-width:250px; background:var(--surface-bg); padding:15px; border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
                                 <h4 style="text-align:center; margin-bottom:10px;">Product Distribution by Categories</h4>
                                 <canvas id="categoriesChart" height="200"></canvas>
                         </div>

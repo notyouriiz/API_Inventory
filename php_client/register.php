@@ -40,7 +40,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!-- UI -->
-<div style="max-width:420px;margin:28px auto;padding:20px;border-radius:8px;border:1px solid #e3e3e3;background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,0.04);font-family:Segoe UI,Roboto,Arial,sans-serif">
+<div style="
+    max-width:420px;
+    margin:28px auto;
+    padding:20px;
+    background: var(--surface-bg);
+    border-radius:10px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+    font-family: Segoe UI,Roboto,Arial,sans-serif;
+">
     <h1 style="margin:0 0 14px 0;font-size:22px">Register</h1>
 
     <?php if($flash): ?>

@@ -197,7 +197,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_category'])) 
 ?>
 
 <!-- UI -->
-<div style="display: flex; max-width: 1200px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06); font-family: Segoe UI, Roboto, Arial, sans-serif;">
+<div class="card">
 
     <!-- left column: categories list -->
     <div style="flex: 1; padding-right: 20px;">
@@ -206,8 +206,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_category'])) 
         <!-- no category found by the search -->
         <?php if ($flashSearch): ?>
             <div style="padding:10px;margin-bottom:12px;border-radius:6px;
-                border:1px solid <?= strpos($flashSearch, 'failed') !== false ? '#f5b7b7' : '#b7f0b7' ?>;
-                background: <?= strpos($flashSearch, 'failed') !== false ? '#ffe6e6' : '#e8ffe8' ?>;">
+            border:1px solid <?= stripos($flash, 'failed') !== false ? 'var(--flash-error-border)' : 'var(--flash-success-border)' ?>;
+            background: <?= stripos($flash, 'failed') !== false ? 'var(--flash-error-bg)' : 'var(--flash-success-bg)' ?>;
+            color: var(--flash-text);
+        ">
+                
                         <?= htmlspecialchars($flashSearch) ?>
             </div>
         <?php endif; ?>
@@ -276,6 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_category'])) 
                         <strong>Updated:</strong> <?= htmlspecialchars($c['updated_at'] ?? 'N/A') ?>
                     </p>
 
+                    <!-- update -->
                     <form method="POST" style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
                         <input type="hidden" name="_method" value="PUT" />
                         <input type="hidden" name="category_id" value="<?= htmlspecialchars($c['id']) ?>" />
@@ -339,9 +343,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_category'])) 
 
         <!-- warning message -->
         <?php if ($flash): ?>
-            <div style="padding: 10px; margin-bottom: 12px; border-radius: 6px;
-                        border:1px solid <?= stripos($flash, 'failed') !== false ? '#f5b7b7' : '#b7f0b7' ?>;
-                        background: <?= stripos($flash, 'failed') !== false ? '#ffe6e6' : '#e8ffe8' ?>;">
+            <div style="padding:10px;margin-bottom:12px;border-radius:6px;
+                    border:1px solid <?= stripos($flash, 'failed') !== false ? 'var(--flash-error-border)' : 'var(--flash-success-border)' ?>;
+                    background: <?= stripos($flash, 'failed') !== false ? 'var(--flash-error-bg)' : 'var(--flash-success-bg)' ?>;
+                    color: var(--flash-text);
+                ">
                         <?= htmlspecialchars($flash) ?> 
             </div>
         <?php endif; ?>
@@ -397,7 +403,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_category'])) 
         <h3>Deleted Categories</h3>
         <ul style="list-style-type: none; padding-left: 0;">
         <?php foreach ($deletedCategories as $c): ?>
-            <li style="background:#fff3cd; padding:10px; margin-bottom:8px; border-radius:6px;">
+            <li data-surface
+            style="background:#fff3cd; padding:10px; margin-bottom:8px; border-radius:6px;">
 
                 <strong><?= htmlspecialchars($c['name']) ?></strong> (deleted) <br>
                 <strong>ID:</strong> <?= htmlspecialchars($c['id']) ?><br>
@@ -432,5 +439,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_category'])) 
     </div>
 
 </div>
+
+<script>
+document.addEventListener("submit", function (e) {
+    // target only category update forms (adjust selector if needed)
+    const inputs = e.target.querySelectorAll("input[name='category_name']");
+
+    inputs.forEach(input => {
+        if (!input.value) return;
+
+        let v = input.value.trim().toLowerCase();
+
+        // Capitalize first letter + after spaces
+        v = v.charAt(0).toUpperCase() + v.slice(1);
+        v = v.replace(/\s+\w/g, s => s.toUpperCase());
+
+        input.value = v;
+    });
+});
+</script>
 
 <?php require_once "footer.php"; ?>
