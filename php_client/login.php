@@ -49,20 +49,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     <?php endif; ?>
 
-    <form method="post" style="display:flex;flex-direction:column;gap:10px">
+    <form method="post" id="loginForm" style="display:flex;flex-direction:column;gap:10px">
         <label>Email
-            <input type="email" name="email" placeholder="Enter email"
+            <input type="email" name="email" placeholder="Enter email" required
                     style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-top:6px;">
         </label>
 
-            <label style="width:90px;">Password</label>
-
-            <div style="flex:1;position:relative;">
+        <label>Password
+            <div style="position:relative;">
                 <input type="password"
                     id="passwordField"
                     name="password"
                     placeholder="Enter password"
-                    style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;">
+                    required
+                    style="width:100%;padding:10px;border:1px solid #ccc;border-radius:6px;margin-top:6px;">
 
                 <span id="togglePassword"
                     style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
@@ -70,21 +70,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     👁
                 </span>
             </div>
-
-        <script>
-        document.getElementById("togglePassword").addEventListener("click", function () {
-            const field = document.getElementById("passwordField");
-            field.type = field.type === "password" ? "text" : "password";
-        });
-        </script>
-
+        </label>
 
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
             <a href="register.php" style="font-size:13px;color:#0073e6;text-decoration:none">Register</a>
             <button type="submit"
-                    style="background:#0073e6;color:#fff;border:0;padding:10px 16px;border-radius:6px; cursor: pointer;">Login</button>
+                    id="loginBtn"
+                    style="background:#0073e6;color:#fff;border:0;padding:10px 16px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:8px;">
+                <span id="btnText">Login</span>
+                <span id="spinner" style="display:none;">
+                    <svg style="width:14px;height:14px;animation:spin 1s linear infinite;" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none" opacity="0.25"/>
+                        <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" opacity="0.75"/>
+                    </svg>
+                </span>
+            </button>
         </div>
     </form>
 </div>
+
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+// Toggle password visibility
+document.getElementById("togglePassword").addEventListener("click", function () {
+    const field = document.getElementById("passwordField");
+    field.type = field.type === "password" ? "text" : "password";
+});
+
+// Handle form submission with button disable
+document.getElementById("loginForm").addEventListener("submit", function(e) {
+    const loginBtn = document.getElementById("loginBtn");
+    const btnText = document.getElementById("btnText");
+    const spinner = document.getElementById("spinner");
+    
+    // Disable button immediately
+    loginBtn.disabled = true;
+    loginBtn.style.opacity = "0.7";
+    loginBtn.style.cursor = "not-allowed";
+    
+    // Change text and show spinner
+    btnText.textContent = "Logging in...";
+    spinner.style.display = "inline-block";
+    
+    // Note: Form will continue to submit normally
+    // The disabled state prevents double-submission
+});
+</script>
 
 <?php require_once "footer.php"; ?>
