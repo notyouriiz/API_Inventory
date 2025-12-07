@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1 style="margin:0 0 14px 0;font-size:22px">Register</h1>
 
     <?php if($flash): ?>
-        <div style="padding:10px;background:#ffe6e6;border:1px solid #f5b7b7;margin-bottom:15px;">
+        <div style="padding: 10px; background: var(--flash-error-bg); border: 1px solid var(--flash-error-border); margin-bottom: 15px; color: var(--flash-text);">
             <?= htmlspecialchars($flash) ?>
         </div>
     <?php endif; ?>
